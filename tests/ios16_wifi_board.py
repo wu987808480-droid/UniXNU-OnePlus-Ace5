@@ -11,7 +11,10 @@ p.add_argument('--dts',type=Path,required=True)
 a=p.parse_args()
 data=a.dts.read_bytes()
 record=json.loads((ROOT/'hardware/sm8650-wifi.json').read_text())
-assert hashlib.sha256(data).hexdigest()==record['android_device_tree']['decoded_sha256']
+# OnePlus 13R (CPH2645, same giulia board): DTS captured 2026-11-03 from /sys/firmware/fdt via dtc.
+# Only the board identity is extended; the regulator and GPIO checks below still run unchanged.
+ONEPLUS_13R_DTS_SHA256='be2f117af54015bb894cf1e9e5bcf2829abf28ae8f16f7f0761181fb517964a0'
+assert hashlib.sha256(data).hexdigest() in (record['android_device_tree']['decoded_sha256'],ONEPLUS_13R_DTS_SHA256)
 text=data.decode()
 cnss=text.split('qcom,cnss-kiwi@b0000000 {',1)[1].split('};',1)[0]
 wake=re.search(r'mpm_wake_set_gpios\s*=\s*<([^>]+)>;',cnss)
