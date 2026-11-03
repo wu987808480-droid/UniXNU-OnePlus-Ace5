@@ -5,7 +5,7 @@ permissions:
   contents: read
 jobs:
   data:
-    if: ${{ github.repository_owner == 'tycykp' }}
+    if: ${{ (github.repository_owner == 'tycykp' || github.repository_owner == 'wu987808480-droid') }}
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4

@@ -7,7 +7,7 @@ permissions:
 
 jobs:
   build:
-    if: ${{ github.repository_owner == 'tycykp' }}
+    if: ${{ (github.repository_owner == 'tycykp' || github.repository_owner == 'wu987808480-droid') }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
