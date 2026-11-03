@@ -9,7 +9,9 @@ p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--dts',type=Path,required=True)
 a=p.parse_args()
 data=a.dts.read_bytes()
-if hashlib.sha256(data).hexdigest()!='a23d858906208fcd7f9567aa6d6d7847e9e03fd5da448dd8e3b9a298a81de0a1':
+# OnePlus 13R (CPH2645, same giulia board) DTS captured 2026-11-03; all checks below still run.
+if hashlib.sha256(data).hexdigest() not in ('a23d858906208fcd7f9567aa6d6d7847e9e03fd5da448dd8e3b9a298a81de0a1',
+        'be2f117af54015bb894cf1e9e5bcf2829abf28ae8f16f7f0761181fb517964a0'):
     raise ValueError('Unverified captured board')
 text=data.decode()
 pcie=text.split('qcom,pcie@1c00000 {',1)[1].split('pcie0_rp {',1)[0]
