@@ -118,7 +118,9 @@ with tempfile.TemporaryDirectory() as directory:
     if report.get('root_finder_id'):
         roots=[e for e in config['entry'] if e['id']=='ios16']
         expected=report['kernel_args'].replace(' giulia_ufs_probe=1','')
-        expected+=' vermeer_ufs_rw=1 vermeer_root_uuid='+report['root_finder_id']
+        # Mirror GIULIA_13R_UFS_RO=1 in make-ios16-payload.py (read-only 13R test boots).
+        rw_arg='' if __import__('os').environ.get('GIULIA_13R_UFS_RO')=='1' else ' vermeer_ufs_rw=1'
+        expected+=rw_arg+' vermeer_root_uuid='+report['root_finder_id']
         if report.get('ios_platform_launch_compat'):
             expected+=' unentitled_ios_sim_launch=1'
             if b'unentitled_ios_sim_launch\0' not in (temporary/'kernel.macho').read_bytes():
