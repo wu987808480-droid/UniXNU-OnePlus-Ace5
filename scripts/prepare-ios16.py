@@ -71,7 +71,12 @@ def main():
          'return vusb_route_identity(route,cbar,sctlr)!=0 &&\n        (((route>>16)&3)==1 || (read_reg(s,0x1800+4*cb)&1));')
     edit(probe, '0x90000', '0x100000')
     edit(probe, '61842431U', '61321215U')
-    edit(probe, '0x45fbee46U', '0xc319db94U')
+    # OnePlus 13R (CPH2645): CRC32 of LBA0-1 (protective MBR + primary GPT header) read 2026-11-03.
+    edit(probe, '0x45fbee46U', '0x4fa9226aU')
+    # 13R UFS answers the first TEST UNIT READY with NOT READY 00/00 (Ace 5: 04/02). Both mean the
+    # device needs the Active power-mode START STOP UNIT on the device WLUN; no data-LUN write.
+    edit(probe, 'last_sense.asc == 4 && last_sense.ascq == 2) {',
+         '((last_sense.asc == 4 && last_sense.ascq == 2) || (last_sense.asc == 0 && last_sense.ascq == 0))) {')
     # Embed a C-compatible guarded context handoff; the generated source patch
     # then carries the entire implementation with correct hunk lengths.
     guard = (Path(__file__).resolve().parents[1]/'ios16/storage/giulia_smmu.h').read_text()
@@ -89,9 +94,9 @@ def main():
     edit(probe,'0x80058','0xc6058')
     edit(block,'    wr(0x50, vu_lo(dma_pa));','    if (giulia_take()) return ENXIO;\n    wr(0x50, vu_lo(dma_pa));')
     edit(block,'    wr(0x50, vb.oldlo);','    if (giulia_restore()) { vb.failed=true; return; }\n    wr(0x50, vb.oldlo);')
-    edit(v/'vermeer_media_policy.h','2570304ULL','3920350ULL')
-    edit(v/'vermeer_media_policy.h','59272123ULL','57400861ULL')
-    edit(block,'g.first != 2570304 || g.blocks != 59272123','g.first != 3920350 || g.blocks != 57400861')
+    edit(v/'vermeer_media_policy.h','2570304ULL','3844212ULL')  # 13R userdata first LBA
+    edit(v/'vermeer_media_policy.h','59272123ULL','57476999ULL')  # 13R userdata blocks
+    edit(block,'g.first != 2570304 || g.blocks != 59272123','g.first != 3844212 || g.blocks != 57476999')
     # Start the scheduler-based CDC worker at root selection, BEFORE UFS I/O.
     hook=v/'0021-vermeer-ios-root-hook.patch'
     edit(hook,'+766,22','+766,33')
